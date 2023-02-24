@@ -5,10 +5,17 @@ const tweetSchema = new mongoose.Schema(
   {
     tweet: {
       type: String,
-      required: true,
     },
     images: {
       type: Array,
+    },
+    video: {
+      public_id: String,
+      url: String,
+      // views: {
+      //   type: Number,
+      //   default: 0,
+      // },
     },
     likes: { type: Number, default: 0 },
   },

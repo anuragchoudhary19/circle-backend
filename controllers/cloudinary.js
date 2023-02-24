@@ -22,20 +22,25 @@ exports.uploadImage = async (req, res) => {
   }
 };
 exports.uploadVideo = async (req, res) => {
+  const fileName = req.headers['file-name'];
+  const isLastChunk = req.headers['last-chunk'];
   try {
-    const fileName = req.headers['file-name'];
-    const isLastChunk = req.headers['last-chunk'];
     // console.log(isLastChunk);
     req.on('data', (chunk) => {
       // console.log(chunk);
-      fs.appendFileSync(fileName, chunk);
+      fs.appendFile(fileName, chunk, (err) => {
+        if (err) console.log(err);
+      });
     });
     if (isLastChunk === 'true') {
       let video = await cloudinary.uploader.upload(`./${fileName}`, {
         public_id: `${Date.now()}`,
         resource_type: 'video',
+        quality: 'auto',
       });
-      fs.unlinkSync(`./${fileName}`);
+      fs.unlink(`./${fileName}`, (err) => {
+        if (err) console.log(err);
+      });
       return res.json({
         public_id: video.public_id,
         url: video.secure_url,
@@ -43,16 +48,19 @@ exports.uploadVideo = async (req, res) => {
     }
     res.end(`recieved chunk`);
   } catch (error) {
-    console.log(error);
-    res.json('error');
+    fs.unlink(`./${fileName}`, (err) => {
+      if (err) console.log(err);
+    });
+    // console.log(error);
+    res.status(403).json({ error: 'file could not be uploaded' });
   }
 };
 
 exports.remove = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   let image_id = req.body.public_id;
   cloudinary.uploader.destroy(image_id, (err, result) => {
-    console.log(result);
+    // console.log(result);
     if (err) return res.status(401).json({ success: false, err });
     res.status(200).json({ success: true });
   });

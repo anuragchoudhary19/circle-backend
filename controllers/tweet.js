@@ -41,12 +41,7 @@ exports.listTweetsWithMedia = async (req, res) => {
 exports.remove = async (req, res) => {
   try {
     const tweet = await Tweet.findOneAndDelete({ _id: req.params.id }).exec();
-    if (tweet.isReply) {
-      const parentTweet = await Tweet.findOneAndUpdate(
-        { _id: tweet.repliedTo },
-        { $pull: { comments: tweet._id } }
-      ).exec();
-    }
+    req.socket.emit(`tweet-deleted`, tweet._id);
     res.status(200).json({ message: 'deleted' });
   } catch (error) {
     res.status(403).json({ error: error });
@@ -57,11 +52,9 @@ exports.remove = async (req, res) => {
 exports.like = async (req, res) => {
   try {
     const tweet = await Tweet.findOne({ _id: req.params.id }).exec();
-    await Tweet.findOneAndUpdate({ _id: req.params.id }, { likes: tweet.likes + 1 }, { new: true }).exec(
-      (err, result) => {
-        req.socket.emit(`liked ${result._id}`, result.likes);
-      }
-    );
+    Tweet.findOneAndUpdate({ _id: req.params.id }, { likes: tweet.likes + 1 }, { new: true }).exec((err, result) => {
+      req.socket.emit(`liked ${result._id}`, result.likes);
+    });
 
     res.status(200).json({ message: 'ok' });
   } catch (error) {
