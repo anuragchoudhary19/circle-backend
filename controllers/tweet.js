@@ -14,7 +14,7 @@ exports.tweetOnTimeline = async (req, res) => {
 
 exports.listTweets = async (req, res) => {
   try {
-    const tweets = await Tweet.find({ user: { $exists: false } })
+    const tweets = await Tweet.find({})
       .sort({ createdAt: -1 })
       .lean()
       .exec();
@@ -26,7 +26,6 @@ exports.listTweets = async (req, res) => {
 exports.listTweetsWithMedia = async (req, res) => {
   try {
     const tweets = await Tweet.find({
-      user: { $exists: false },
       $or: [{ 'images.0': { $exists: true } }, { video: { $exists: true } }],
     })
       .sort({ createdAt: -1 })
