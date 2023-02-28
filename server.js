@@ -70,7 +70,9 @@ socket = io.on('connection', (socket) => {
   });
   socket.on('get-onlines', function () {
     // console.log(id);
-    socket.emit('onlines', Array.from(onlines.values()));
+    if (Array.from(onlines.values()).length > 0) {
+      socket.emit('onlines', Array.from(onlines.values()));
+    }
   });
   return socket;
 });
@@ -81,5 +83,7 @@ setInterval(() => {
       onlines.delete(user);
     }
   }
-  socket.emit('onlines', Array.from(onlines.values()));
+  if (Array.from(onlines.values()).length > 0) {
+    socket.emit('onlines', Array.from(onlines.values()));
+  }
 }, 5000);
