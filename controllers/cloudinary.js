@@ -21,6 +21,18 @@ exports.uploadImage = async (req, res) => {
     return res.status(400).json('Error in uploading images');
   }
 };
+exports.uploadImagePrivate = async (req, res) => {
+  try {
+    var data = req?.body?.image.replace(/^data:image\/\w+;base64,/, '');
+    var buf = Buffer.from(data, 'base64');
+    fs.writeFile(`image_${Date.now()}.png`, buf, (err) => {
+      if (err) return console.log(err);
+      return res.json({ uploaded: true });
+    });
+  } catch (error) {
+    return res.status(400).json('Error in uploading images');
+  }
+};
 exports.uploadVideo = async (req, res) => {
   const fileName = req.headers['file-name'];
   const isLastChunk = req.headers['last-chunk'];
@@ -45,6 +57,29 @@ exports.uploadVideo = async (req, res) => {
         public_id: video.public_id,
         url: video.secure_url,
       });
+    }
+    res.end(`recieved chunk`);
+  } catch (error) {
+    fs.unlink(`./${fileName}`, (err) => {
+      if (err) console.log(err);
+    });
+    // console.log(error);
+    res.status(403).json({ error: 'file could not be uploaded' });
+  }
+};
+exports.uploadVideoPrivate = async (req, res) => {
+  const fileName = req.headers['file-name'];
+  const isLastChunk = req.headers['last-chunk'];
+  try {
+    // console.log(isLastChunk);
+    req.on('data', (chunk) => {
+      // console.log(chunk);
+      fs.appendFile(fileName, chunk, (err) => {
+        if (err) return console.log(err);
+      });
+    });
+    if (isLastChunk === 'true') {
+      return res.json({ lastChunk: true });
     }
     res.end(`recieved chunk`);
   } catch (error) {

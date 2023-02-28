@@ -14,10 +14,7 @@ exports.tweetOnTimeline = async (req, res) => {
 
 exports.listTweets = async (req, res) => {
   try {
-    const tweets = await Tweet.find({})
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    const tweets = await Tweet.find({}).sort({ createdAt: -1 }).lean().exec();
     res.status(200).json({ tweets });
   } catch (error) {
     res.status(403).json({ error: 'Not found' });
@@ -26,7 +23,7 @@ exports.listTweets = async (req, res) => {
 exports.listTweetsWithMedia = async (req, res) => {
   try {
     const tweets = await Tweet.find({
-      $or: [{ 'images.0': { $exists: true } }, { video: { $exists: true } }],
+      $or: [{ 'images.0': { $exists: true } }, { 'video.url': { $exists: true } }],
     })
       .sort({ createdAt: -1 })
       .lean()

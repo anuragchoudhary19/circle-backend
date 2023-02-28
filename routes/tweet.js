@@ -8,6 +8,8 @@ const {
   retweet,
   like,
   // getTweet,
+  // updateVistors,
+  // listVistors,
   remove,
   feed,
   // listLikedTweets,
