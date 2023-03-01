@@ -32,8 +32,8 @@ const corsOptions = {
   credentials: true,
   optionSuccessStatus: 200,
 };
-app.use(cors(corsOptions));
-app.options('*', cors());
+app.use(cors());
+// app.options('*', cors());
 
 app.use(morgan('dev'));
 app.use(cookieParser());
@@ -49,6 +49,9 @@ let socket;
 app.use(function (req, res, next) {
   req.socket = socket;
   next();
+});
+app.get('/health', (req, res) => {
+  return res.send('ok');
 });
 
 fs.readdirSync('./routes').map((r) => app.use('/api', require('./routes/' + r)));
