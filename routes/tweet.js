@@ -28,7 +28,7 @@ router.get('/tweets/all', listTweets);
 // router.get('/tweets/replies/:userId', listRepliedTweets);
 router.get('/tweets/media/', listTweetsWithMedia);
 
-router.delete('/tweet/:id', remove);
+router.delete('/tweet/delete/:id', remove);
 // router.get('/status/comments/:id', jwtCheck, authCheck, readComments);
 
 router.put('/tweet/like/:id', like);
